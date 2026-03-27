@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sandaruwan Portfolio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* --- GLOBAL & THEME VARIABLES --- */
+        :root {
+            --bg-color: #0a0a12;
+            --text-color: #e0e0e0;
+            --neon-purple: #9d4edd;
+            --neon-blue: #00b4d8;
+            --shading-light: rgba(255, 255, 255, 0.05);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- BACKGROUND ANIMATION --- */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 15% 15%, rgba(157, 78, 221, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(0, 180, 216, 0.1) 0%, transparent 40%);
+            z-index: -2;
+            animation: slowPulse 15s infinite alternate;
+        }
+
+        @keyframes slowPulse {
+            0% { opacity: 0.6; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.05); }
+        }
+
+        #mouse-shade {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--shading-light) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(15, 15, 25, 0.8);
+            backdrop-filter: blur(15px);
+            padding: 6px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-content {
+            display: flex;
+            gap: 5px;
+            position: relative;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #888;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: 100px;
+            transition: color 0.4s ease;
+            z-index: 2;
+            white-space: nowrap;
+        }
+
+        .nav-link.active { color: #fff; }
+
+        .nav-indicator {
+            position: absolute;
+            height: 100%;
+            top: 0;
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
+            border-radius: 100px;
+            z-index: 1;
+            transition: var(--transition);
+            box-shadow: 0 0 15px rgba(0, 180, 216, 0.5);
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        /* --- SECTIONS --- */
+        section {
+            min-height: 100vh;
+            padding: 100px 10%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(25px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- HOME PAGE (IMAGE RIGHT & TIGHT) --- */
+        #home {
+            flex-direction: row;
+            align-items: center;
+            justify-content: center; /* Pulls both sides to center */
+            gap: 40px; /* Adjust this for "tightness" */
+        }
+
+        .home-left {
+            flex: 0 1 auto; /* Only takes needed space */
+            text-align: left;
+        }
+
+        .home-left h1 {
+            font-size: 3.5rem; /* Scaled to help fit on one line */
+            line-height: 1.1;
+            margin: 10px 0;
+            white-space: nowrap; /* Forces name to stay on one line */
+            background: linear-gradient(to right, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .home-right {
+            flex: 0 1 auto;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .home-right img {
+            max-width: 450px; /* Reduced to keep layout balanced */
+            height: auto;
+            border-radius: 20px;
+            animation: floating 4s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* --- TITLES --- */
+        h2.section-title {
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            background: linear-gradient(to right, var(--neon-purple), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* --- PROJECTS --- */
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .project-card { background-color: var(--card-bg); border-radius: 15px; overflow: hidden; transition: var(--transition); border: 1px solid transparent; text-decoration: none; color: inherit; }
+        .project-card:hover { transform: translateY(-10px); border-color: rgba(0, 180, 216, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .project-thumb { width: 100%; height: 200px; background-color: #1a1a2e; background-size: cover; background-position: center; }
+        .project-info { padding: 20px; }
+
+        /* --- ABOUT --- */
+        .about-content { display: grid; grid-template-columns: 2fr 1fr; gap: 50px; }
+        .extra-skills ul { list-style: none; margin-top: 10px; }
+        .extra-skills li { margin-bottom: 8px; color: #aaa; font-size: 0.9rem; }
+
+        /* --- LANGUAGES --- */
+        .languages-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 20px; text-align: center; }
+        .lang-card { background-color: var(--card-bg); padding: 25px; border-radius: 15px; transition: var(--transition); border: 1px solid rgba(255,255,255,0.05); }
+        .lang-card:hover { transform: scale(1.1); border-color: var(--neon-blue); }
+        .lang-card i { font-size: 2.5rem; margin-bottom: 10px; }
+        .fa-html5 { color: #e34c26; } .fa-css3-alt { color: #264de4; } .fa-js { color: #f0db4f; } .fa-react { color: #61dbfb; } .fa-python { color: #306998; }
+
+        /* --- SOCIAL MEDIA --- */
+        .social-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        .social-card { background-color: var(--card-bg); padding: 2px; border-radius: 15px; text-decoration: none; color: inherit; transition: var(--transition); position: relative; overflow: hidden; }
+        .social-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue)); opacity: 0; transition: 0.5s; z-index: 1; }
+        .social-card:hover::before { opacity: 1; }
+        .social-card-inner { position: relative; z-index: 2; background: #0d0d16; padding: 20px; border-radius: 13px; display: flex; align-items: center; gap: 15px; }
+        .social-card i { font-size: 1.8rem; }
+        .fa-tiktok { color: #ff0050; } .fa-facebook { color: #1877F2; } .fa-linkedin { color: #0077B5; } .fa-instagram { color: #E4405F; }
+
+        /* --- CONTACT --- */
+        .contact-container { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; }
+        .contact-form form { display: flex; flex-direction: column; gap: 15px; }
+        .contact-form input, .contact-form textarea { padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; transition: 0.3s; }
+        .contact-form input:focus, .contact-form textarea:focus { outline: none; border-color: var(--neon-blue); }
+        .contact-form button { padding: 15px; background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue)); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1100px) {
+            .home-left h1 { font-size: 2.2rem; }
+            .home-right img { max-width: 350px; }
+        }
+
+        @media (max-width: 768px) {
+            #home { flex-direction: column-reverse; text-align: center; gap: 20px; }
+            .home-left h1 { font-size: 1.8rem; white-space: normal; }
+            .home-right img { max-width: 250px; }
+            .about-content, .contact-container { grid-template-columns: 1fr; }
+            nav { width: 95%; top: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="mouse-shade"></div>
+
+    <nav>
+        <div class="nav-content">
+            <div class="nav-indicator"></div> 
+            <a href="#home" class="nav-link">Home</a>
+            <a href="#projects" class="nav-link">Projects</a>
+            <a href="#about" class="nav-link">About</a>
+            <a href="#languages" class="nav-link">Languages</a>
+            <a href="#social" class="nav-link">Social</a>
+            <a href="#contact" class="nav-link">Contact</a>
+        </div>
+    </nav>
+
+    <section id="home">
+        <div class="home-left fade-in">
+            <p style="color: var(--neon-blue); font-weight: bold; letter-spacing: 1px;">Hello, I'm</p>
+            <h1>K.P. Sandaruwan Tharaka <br>Munasinghe</h1>
+            <p>Undergraduate Software Engineer / Creative Developer</p>
+        </div>
+        <div class="home-right fade-in">
+            <img src="Image1.png" alt="Sandaruwan Tharaka">
+        </div>
+    </section>
+
+    <section id="projects">
+        <h2 class="section-title fade-in">Projects</h2>
+        <div class="projects-grid">
+            <a href="https://sandaru-wan.github.io/Govi-Path/" class="project-card fade-in">
+                <div class="project-thumb" style="background-image: url('govi.png');"></div>
+                <div class="project-info">
+                    <h3>Govi Path 360</h3>
+                    <p>Modern web application built with HTML / CSS / JavaScript</p>
+                </div>
+            </a>
+            <a href="https://sandaru-wan.github.io/Online-Tutor/" class="project-card fade-in">
+                <div class="project-thumb" style="background-image: url('onlinetutor.png');"></div>
+                <div class="project-info">
+                    <h3>Online Tutor</h3>
+                    <p>Modern Web Application For Students</p>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <section id="about">
+        <h2 class="section-title fade-in">About Me</h2>
+        <div class="about-content">
+            <div class="about-text fade-in">
+                <p>I am a passionate software engineer focused on building clean, efficient, and user-friendly digital solutions.</p>
+                <p style="margin-top:15px;">Currently, I am expanding my knowledge in AI integration and Cloud Architecture.</p>
+            </div>
+            <div class="extra-skills fade-in">
+                <h3>Extra Skills</h3>
+                <ul>
+                    <li>UI/UX Design (Figma)</li>
+                    <li>Technical Documentation</li>
+                    <li>Agile/Scrum Workflow</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="languages">
+        <h2 class="section-title fade-in">Computing Languages</h2>
+        <div class="languages-grid">
+            <div class="lang-card fade-in"><i class="fab fa-html5"></i><p>HTML5</p></div>
+            <div class="lang-card fade-in"><i class="fab fa-css3-alt"></i><p>CSS3</p></div>
+            <div class="lang-card fade-in"><i class="fab fa-js"></i><p>JavaScript</p></div>
+            <div class="lang-card fade-in"><i class="fab fa-react"></i><p>React</p></div>
+            <div class="lang-card fade-in"><i class="fab fa-python"></i><p>Python</p></div>
+        </div>
+    </section>
+
+    <section id="social">
+        <h2 class="section-title fade-in">Connect With Me</h2>
+        <div class="social-grid">
+            <a href="https://www.tiktok.com/@futureo" class="social-card fade-in">
+                <div class="social-card-inner">
+                    <i class="fab fa-tiktok"></i>
+                    <div><h4>TikTok</h4><p>Futute_t_official</p></div>
+                </div>
+            </a>
+
+
+         
+
+            <a href="https://web.facebook.com/sandaruwan.tharaka.286587/" class="social-card fade-in">
+                <div class="social-card-inner">
+                    <i class="fab fa-facebook"></i>
+                    <div><h4>Facebook</h4><p>Sandaruwan Tharaka</p></div>
+                </div>
+            </a>
+            <a href="https://www.linkedin.com/in/sandaruwan-tharaka-295790145?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" class="social-card fade-in">
+                <div class="social-card-inner">
+                    <i class="fab fa-linkedin"></i>
+                    <div><h4>LinkedIn</h4><p>Sandaruwan Tharaka</p></div>
+                </div>
+            </a>
+            <a href="https://www.instagram.com/future_t_official?igsh=M2dpb2lmMDlqZGdw&utm_source=qr" class="social-card fade-in">
+                <div class="social-card-inner">
+                    <i class="fab fa-instagram"></i>
+                    <div><h4>Instagram</h4><p>Future_T_Official</p></div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <section id="contact">
+        <h2 class="section-title fade-in">Contact</h2>
+        <div class="contact-container">
+            <div class="contact-info fade-in">
+                <h3>Get in Touch</h3>
+                <p>Email: sandaruwantharaka200@gmail.com</p>
+                <p>Phone: +94 77 229 6277</p>
+                <p>Location: Sri Lanka</p>
+            </div>
+            <div class="contact-form fade-in">
+
+    <form action="https://formspree.io/f/mvzvodwb" method="POST">
+        <input type="text" name="name" placeholder="Full Name" required>
+        <input type="email" name="email" placeholder="Email Address" required>
+        <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
+        <button type="submit">Send Message</button>
+    </form>
+</div>
+        </div>
+    </section>
+
+    <script>
+        // MOUSE SHADING
+        const mouseShade = document.getElementById('mouse-shade');
+        document.addEventListener('mousemove', (e) => {
+            mouseShade.style.opacity = 1;
+            mouseShade.style.left = e.clientX + 'px';
+            mouseShade.style.top = e.clientY + 'px';
+        });
+        document.addEventListener('mouseleave', () => mouseShade.style.opacity = 0);
+
+        // FADE-IN
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        // NAV INDICATOR
+        const navLinks = document.querySelectorAll('.nav-link');
+        const indicator = document.querySelector('.nav-indicator');
+        const sections = document.querySelectorAll('section');
+
+        function updateNavigation() {
+            let currentId = "";
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.pageYOffset >= (sectionTop - 300)) {
+                    currentId = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${currentId}`) {
+                    link.classList.add('active');
+                    indicator.style.opacity = "1";
+                    indicator.style.width = `${link.offsetWidth}px`;
+                    indicator.style.left = `${link.offsetLeft}px`;
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateNavigation);
+        window.addEventListener('load', updateNavigation);
+        window.addEventListener('resize', updateNavigation);
+    </script>
+</body>
+</html>
