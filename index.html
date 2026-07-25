@@ -60,6 +60,8 @@
         @media (pointer: fine) {
             body { cursor: none; }
             a, button, input, textarea, .project-card, .bento-box { cursor: none; }
+            /* Allow explicit elements to show the OS cursor (useful for download links) */
+            .show-cursor { cursor: pointer !important; }
         }
 
         a {
@@ -162,6 +164,38 @@
         .cursor-glow.active {
             width: 250px; height: 250px;
             background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+        }
+
+        /* Custom cursor icon showing <> in orange */
+        .cursor-icon {
+            position: fixed;
+            left: 0; top: 0;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+            opacity: 0.95;
+            font-weight: 800;
+        }
+
+        .cursor-icon .cursor-mark {
+            color: #ff6a00; /* orange */
+            font-size: 14px;
+            line-height: 1;
+            user-select: none;
+            -webkit-user-select: none;
+            pointer-events: none;
+            display: inline-block;
+            transform: translateY(-1px);
+        }
+
+        .cursor-icon.active {
+            transform: translate(-50%, -50%) scale(1.25);
         }
 
         /* Control Buttons */
@@ -746,11 +780,44 @@
             .mobile-menu-btn { display: block; }
             .form-glass { padding: 25px 20px; }
         }
+
+        /* Scroll-to-top (Up) button */
+        .scroll-top-btn {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+            transform: translateY(8px) scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform var(--transition-fast), opacity var(--transition-fast);
+            z-index: 2000;
+        }
+
+        .scroll-top-btn.visible {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        @media (max-width: 480px) {
+            .scroll-top-btn { right: 14px; bottom: 14px; width: 44px; height: 44px; }
+        }
     </style>
 </head>
 <body>
     <!-- Radial Interactive Layer -->
     <div class="cursor-glow"></div>
+    <div class="cursor-icon" aria-hidden="true"><span class="cursor-mark">&lt;&gt;</span></div>
     <div class="bg-grid"></div>
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
@@ -792,6 +859,7 @@
                         <div class="hero-actions">
                             <a href="#projects" class="btn-primary">View My Work <i class="fa-solid fa-arrow-right"></i></a>
                             <a href="#social" class="btn-secondary">Connect <i class="fa-brands fa-linkedin"></i></a>
+                            <a href="./Sandaruwan_Tharaka_CV.pdf" class="btn-secondary" download>Download CV </i></a>
                         </div>
                     </div>
                     <div class="hero-image fade-in-right">
@@ -874,7 +942,7 @@
                 <div class="projects-grid">
                     <a href="https://sandaru-wan.github.io/Govi-Path/" target="_blank" rel="noopener noreferrer" class="project-card fade-in-up">
                         <div class="project-img-wrapper">
-                            <img src="./govi.png" alt="Govi Path 360">
+                           <img src="./govi.png" alt="Govi Path 360">
                             <div class="project-overlay">
                                 <span class="view-btn">View Live <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
                             </div>
@@ -917,7 +985,7 @@
                             </div>
                         </div>
                         <div class="project-info">
-                            <h3>Online Tutor</h3>
+                            <h3>Shelf Life Ai</h3>
                             <p>Smart Website For Farmers</p>
                             <div class="project-tags">
                                 <span>Web App</span><span>Agriculture</span>
@@ -1025,17 +1093,23 @@
         <div class="container footer-content">
             <p>&copy; <span id="year"></span> Sandaruwan Tharaka. All rights reserved.</p>
             <div class="footer-links">
-                <a href="#home">Home</a>
-                <a href="#projects">Projects</a>
+                
+                
             </div>
         </div>
     </footer>
+
+    <!-- Floating Up Button -->
+    <button id="scrollTopBtn" class="scroll-top-btn show-cursor" aria-label="Scroll to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
 
     <!-- Client Interactive Logic Block -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // 1. Smooth Follow Custom Mouse Glow Tracker
             const cursor = document.querySelector('.cursor-glow');
+            const cursorIcon = document.querySelector('.cursor-icon');
             let mouseX = 0, mouseY = 0;
             let cursorX = 0, cursorY = 0;
             
@@ -1048,21 +1122,32 @@
                 const animateCursor = () => {
                     cursorX += (mouseX - cursorX) * 0.15;
                     cursorY += (mouseY - cursorY) * 0.15;
-                    
+
                     cursor.style.left = `${cursorX}px`;
                     cursor.style.top = `${cursorY}px`;
-                    
+                    if (cursorIcon) {
+                        cursorIcon.style.left = `${cursorX}px`;
+                        cursorIcon.style.top = `${cursorY}px`;
+                    }
+
                     requestAnimationFrame(animateCursor);
                 };
                 animateCursor();
                 
                 const interactives = document.querySelectorAll('a, button, input, textarea, .project-card, .bento-box');
                 interactives.forEach(el => {
-                    el.addEventListener('mouseenter', () => cursor.classList.add('active'));
-                    el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+                    el.addEventListener('mouseenter', () => {
+                        cursor.classList.add('active');
+                        if (cursorIcon) cursorIcon.classList.add('active');
+                    });
+                    el.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('active');
+                        if (cursorIcon) cursorIcon.classList.remove('active');
+                    });
                 });
             } else {
                 cursor.style.display = 'none';
+                if (cursorIcon) cursorIcon.style.display = 'none';
             }
 
             // 2. Scroll Animation Driver
@@ -1117,6 +1202,29 @@
             const yearSpan = document.getElementById('year');
             if (yearSpan) {
                 yearSpan.textContent = new Date().getFullYear();
+            }
+
+            // 5. Scroll-to-top (Up) button behavior
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+            if (scrollTopBtn) {
+                const toggleScrollBtn = () => {
+                    if (window.scrollY > 300) {
+                        scrollTopBtn.classList.add('visible');
+                    } else {
+                        scrollTopBtn.classList.remove('visible');
+                    }
+                };
+
+                window.addEventListener('scroll', toggleScrollBtn);
+                // ensure initial state
+                toggleScrollBtn();
+
+                scrollTopBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const home = document.getElementById('home');
+                    if (home) home.scrollIntoView({ behavior: 'smooth' });
+                    else window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
             }
         });
     </script>
